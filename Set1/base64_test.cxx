@@ -11,5 +11,5 @@ int main()
 
   std::cout << "Input String => '" << input << "'" << std::endl;
   std::cout << "Output String => '" << output << "'" << std::endl;
-  std::cout << "Test Pass => " << (strcmp(expected, output) == 0 ? "PASS" : "FAIL") << std::endl;
+  std::cout << "Test Result => " << ( strcmp( expected, output ) == 0 ? "PASS" : "FAIL" ) << std::endl;
 }

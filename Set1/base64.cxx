@@ -31,6 +31,15 @@ size_t hex_to_raw( char * dst, const char * src, size_t srclen )
   return len;
 }
 
+void raw_to_hex( char * dst, const char * src, size_t srlen )
+{
+  const char * alphabet = "0123456789abcdef";
+  for ( size_t idx = 0 ; idx < srlen ; ++idx, dst += 2 ) {
+    dst[0] = alphabet[src[idx] >> 4];
+    dst[1] = alphabet[src[idx] & 0xF];
+  }
+}
+
 size_t hex_to_b64( char * dst, const char * src, size_t srclen )
 {
   char * rawsrc = (char*)malloc( srclen );
