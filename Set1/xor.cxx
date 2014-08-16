@@ -9,6 +9,16 @@ void fixed_xor(char * dst, const char * src1, const char * src2, size_t len)
   }
 }
 
+void encrypt_repkey_xor(char * dst, const char * src, size_t srclen, const char * key, size_t keylen)
+{
+  size_t keyIndex = 0;
+  for ( size_t idx = 0 ; idx < srclen ; ++idx ) {
+    const char currentKeyChar = key[keyIndex];
+    dst[idx] = src[idx] ^ currentKeyChar;
+    keyIndex = ( keyIndex + 1 ) % keylen;
+  }
+}
+
 CharFrequency getEnglishFrequencies()
 {
   CharFrequency english_freq;

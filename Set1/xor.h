@@ -11,6 +11,10 @@ typedef std::map<char, double> CharFrequency;
 */
 void fixed_xor(char * dst, const char * src1, const char * src2, size_t len);
 
+/* Encrypt a given source buffer via repeating-key XOR with a specified key.
+*/
+void encrypt_repkey_xor(char * dst, const char * src, size_t srclen, const char * key, size_t keylen);
+
 /* Given a string and a comparison frequency distribution,
    calculate a RMSE (root mean squared error) score.
 
