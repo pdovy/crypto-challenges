@@ -1,3 +1,8 @@
+/*
+ * Fixed XOR - Matasano Crypto Challenge 1.2
+ * See: http://cryptopals.com/sets/1/challenges/2/
+ */
+
 #include <iostream>
 #include <cassert>
 #include <string.h>
