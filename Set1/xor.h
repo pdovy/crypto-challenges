@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <map>
+#include <string>
 
 typedef std::map<char, double> CharFrequency;
 
@@ -11,9 +12,25 @@ typedef std::map<char, double> CharFrequency;
 */
 void fixed_xor(char * dst, const char * src1, const char * src2, size_t len);
 
-/* Encrypt a given source buffer via repeating-key XOR with a specified key.
+/* Encrypt or decrypt a given source buffer via repeating-key XOR with a specified key.
 */
-void encrypt_repkey_xor(char * dst, const char * src, size_t srclen, const char * key, size_t keylen);
+void apply_repkey_xor(char * dst, const char * src, size_t srclen, const char * key, size_t keylen);
+
+/* Compute the edit/hamming distance between two strings. */
+size_t edit_distance(const char * str1, const char * str2, size_t len);
+
+struct XORCipherData
+{
+  char key;
+  std::string decoded;
+};
+
+typedef std::map<double, XORCipherData> RankedCiphers;
+
+/* Given a buffer of data assumed to be encoded with an XOR cipher,
+   rank all possible single character cipher keys.
+*/
+void solve_xor_cipher( RankedCiphers & rankings, const char * data, size_t rawsz );
 
 /* Given a string and a comparison frequency distribution,
    calculate a RMSE (root mean squared error) score.
@@ -22,7 +39,7 @@ void encrypt_repkey_xor(char * dst, const char * src, size_t srclen, const char 
    A return value of zero indicates that the string is is invalid
      (contains non-printable characters) and can be discarded.
 */
-double score_string( const char * str, const CharFrequency & cmpfreq );
+double score_string( const char * str, size_t len, const CharFrequency & cmpfreq );
 
 /* English language letter freqency distribution taken from:
    http://www.data-compression.com/english.html

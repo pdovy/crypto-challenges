@@ -18,6 +18,29 @@ uint8_t convert_hex_digit( char c )
   }
 }
 
+uint8_t convert_b64_digit( char c )
+{
+  if ( c >= 'A' && c <= 'Z' ) {
+    return c - 'A';
+  }
+  else if ( c >= 'a' && c <= 'z' ) {
+    return ( c - 'a' ) + 26;
+  }
+  else if ( c >= '0' && c <= '9' ) {
+    return ( c - '0' ) + 52;
+  }
+  else if ( c == '+' ) {
+    return 62;
+  }
+  else if ( c == '/' ) {
+    return 63;
+  }
+  else {
+    // invalid character
+    return 0;
+  }
+}
+
 size_t hex_to_raw( char * dst, const char * src, size_t srclen )
 {
   size_t len = 0;
@@ -31,12 +54,13 @@ size_t hex_to_raw( char * dst, const char * src, size_t srclen )
   return len;
 }
 
-void raw_to_hex( char * dst, const char * src, size_t srlen )
+void raw_to_hex( char * dst, const char * src, size_t srclen )
 {
   const char * alphabet = "0123456789abcdef";
-  for ( size_t idx = 0 ; idx < srlen ; ++idx, dst += 2 ) {
-    dst[0] = alphabet[src[idx] >> 4];
-    dst[1] = alphabet[src[idx] & 0xF];
+  for ( size_t idx = 0 ; idx < srclen ; ++idx, dst += 2 ) {
+    unsigned char srcbyte = src[idx];
+    dst[0] = alphabet[srcbyte >> 4];
+    dst[1] = alphabet[srcbyte & 0xF];
   }
 }
 
@@ -66,3 +90,21 @@ size_t hex_to_b64( char * dst, const char * src, size_t srclen )
   return b64len;
 }
 
+size_t b64_to_raw( char * dst, const char * src, size_t srclen )
+{
+  uint8_t digits[4];
+  char * tgt = dst;
+
+  for ( size_t idx = 0 ; idx < srclen ; idx += 4, tgt += 3 ) {
+    digits[0] = convert_b64_digit( src[idx] );
+    digits[1] = convert_b64_digit( src[idx + 1] );
+    digits[2] = convert_b64_digit( src[idx + 2] );
+    digits[3] = convert_b64_digit( src[idx + 3] );
+
+    tgt[0] = ( digits[0] << 2 ) | ( digits[1] >> 4 );
+    tgt[1] = ( digits[1] << 4 ) | ( digits[2] >> 2 );
+    tgt[2] = ( digits[2] << 6 ) | digits[3];
+  }
+
+  return tgt - dst;
+}

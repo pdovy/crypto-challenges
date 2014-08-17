@@ -17,7 +17,7 @@ int main()
 
   char output[256] = { 0 };
   char outputHex[256] = { 0 };
-  encrypt_repkey_xor( output, input, srclen, key, strlen( key ) );
+  apply_repkey_xor( output, input, srclen, key, strlen( key ) );
   raw_to_hex( outputHex, output, srclen );
 
   std::cout << "Input String: " << input << std::endl;

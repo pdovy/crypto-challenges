@@ -1,6 +1,10 @@
 #include "xor.h"
 #include <cmath>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
+#include <cassert>
 
 void fixed_xor(char * dst, const char * src1, const char * src2, size_t len)
 {
@@ -9,7 +13,7 @@ void fixed_xor(char * dst, const char * src1, const char * src2, size_t len)
   }
 }
 
-void encrypt_repkey_xor(char * dst, const char * src, size_t srclen, const char * key, size_t keylen)
+void apply_repkey_xor(char * dst, const char * src, size_t srclen, const char * key, size_t keylen)
 {
   size_t keyIndex = 0;
   for ( size_t idx = 0 ; idx < srclen ; ++idx ) {
@@ -17,6 +21,15 @@ void encrypt_repkey_xor(char * dst, const char * src, size_t srclen, const char 
     dst[idx] = src[idx] ^ currentKeyChar;
     keyIndex = ( keyIndex + 1 ) % keylen;
   }
+}
+
+size_t edit_distance(const char * str1, const char * str2, size_t len)
+{
+  size_t result = 0;
+  for ( size_t idx = 0 ; idx < len ; ++idx ) {
+    result += __builtin_popcount( str1[idx] ^ str2[idx] );
+  }
+  return result;
 }
 
 CharFrequency getEnglishFrequencies()
@@ -52,13 +65,13 @@ CharFrequency getEnglishFrequencies()
   return english_freq;
 }
 
-double score_string( const char * str, const CharFrequency & cmpfreq )
+double score_string( const char * str, size_t len, const CharFrequency & cmpfreq )
 {
   CharFrequency counts;
   size_t size = 0;
 
-  while ( *str ) {
-    const char c = *str;
+  for ( size_t idx = 0 ; idx < len ; ++idx ) {
+    const char c = str[idx];
 
     // if there are non-printable characters, consider it definitely bad
     if ( ( c < ' ' || c > '~' ) && c != '\r' && c != '\n' && c != '\t' ) {
@@ -66,7 +79,6 @@ double score_string( const char * str, const CharFrequency & cmpfreq )
     }
 
     counts[c] += 1;
-    ++str;
     ++size;
   }
 
@@ -79,4 +91,34 @@ double score_string( const char * str, const CharFrequency & cmpfreq )
   }
 
   return sqrt( error );
+}
+
+void solve_xor_cipher( RankedCiphers & rankings, const char * data, size_t rawsz )
+{
+  CharFrequency english_freq = getEnglishFrequencies();
+  char * result = (char*)malloc( rawsz );
+
+  for ( uint8_t c = 1 ; c <= 127 ; ++c ) {
+    memset( result, 0, rawsz );
+    std::string keystr( rawsz, c );
+    assert( rawsz == keystr.size() );
+    fixed_xor( result, data, keystr.c_str(), rawsz );
+
+    // score the string, zero indicates a non-viable result
+    double score = score_string( result, rawsz, english_freq );
+    if ( score == 0.0 ) {
+      continue;
+    }
+
+    // assume that the full string will decode
+    //if ( strlen( result ) != rawsz ) {
+      //continue;
+    //}
+
+    XORCipherData v = { c, std::string( result, rawsz ) };
+    std::pair<RankedCiphers::iterator, bool> res =
+      rankings.insert( std::make_pair( score, v ) );
+  }
+
+  free( result );
 }

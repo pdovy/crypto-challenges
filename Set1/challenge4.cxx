@@ -11,48 +11,6 @@
 #include <string.h>
 #include <inttypes.h>
 
-struct StringPair
-{
-  std::string original;
-  std::string decoded;
-};
-
-typedef std::map<double, StringPair> RankedStrings;
-
-void addrank( RankedStrings & rankings, const std::string & input )
-{
-  char dst1[128] = { 0 };
-  char dst2[128] = { 0 };
-  char result[128] = { 0 };
-  size_t rawsz = hex_to_raw( dst1, input.c_str(), input.length() );
-
-  CharFrequency english_freq = getEnglishFrequencies();
-
-  for ( uint8_t c = 1 ; c <= 127 ; ++c ) {
-    memset( dst2, c, rawsz );
-    fixed_xor( result, dst1, dst2, rawsz );
-
-    // assume that the full string will decode
-    if ( strlen( result ) != rawsz ) {
-      continue;
-    }
-
-    // score the string, zero indicates a non-viable result
-    double score = score_string( result, english_freq );
-    if ( score == 0.0 ) {
-      continue;
-    }
-
-    StringPair v = { input, std::string( result ) };
-    std::pair<RankedStrings::iterator, bool> res =
-      rankings.insert( std::make_pair( score, v ) );
-    if ( !res.second ) {
-      std::cout << "dupe for score " << score << std::endl;
-      std::cout << "dupe decoding was " << result << std::endl;
-    }
-  }
-}
-
 int main()
 {
   const char * filename = "4.txt";
@@ -64,22 +22,25 @@ int main()
     return 1;
   }
 
-  RankedStrings rankings;
+  RankedCiphers rankings;
   size_t numinputs = 0;
+  char raw[128] = { 0 };
+
   while ( std::getline( input, line ) ) {
-    addrank( rankings, line );
+    size_t rawlen = hex_to_raw( raw, line.c_str(), line.size() );
+    solve_xor_cipher( rankings, raw, rawlen );
     ++numinputs;
   }
   input.close();
 
   std::cout << "Loaded " << numinputs << " Input Strings" << std::endl;
 
-  for ( RankedStrings::const_iterator it = rankings.begin() ;
+  for ( RankedCiphers::const_iterator it = rankings.begin() ;
 	it != rankings.end() ; ++it )
   {
     std::cout << "Score " << it->first << " -----------------" << std::endl;
-    std::cout << "Original: " << it->second.original << std::endl;
     std::cout << "Decoded: " << it->second.decoded << std::endl;
+    std::cout << "Key: " << it->second.key << std::endl;
   }
 
   std::cout << "Top Result [" << rankings.begin()->second.decoded << "]" << std::endl;
