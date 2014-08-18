@@ -12,3 +12,13 @@ void decrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const char
   EVP_DecryptFinal( ctx, (uint8_t*)dst, &len );
   EVP_CIPHER_CTX_free( ctx );
 }
+
+void pad_pkcs7( std::string & src, size_t blocksz )
+{
+  int8_t padsz = blocksz - ( src.size() % blocksz );
+  if ( padsz == blocksz ) return;
+
+  for ( int8_t idx = 0 ; idx < padsz ; ++idx ) {
+    src.push_back( padsz );
+  }
+}
