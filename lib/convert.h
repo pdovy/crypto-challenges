@@ -1,14 +1,5 @@
-#ifndef SET1_BASE64_H
-#define SET1_BASE64_H
-
-/*
- * Base64 Conversion - Matasano Crypto Challenge 1.1
- * See: http://cryptopals.com/sets/1/challenges/1/
- *
- * TODOs:
- *  - Change signature to take a max length for the output buffers.
- *  - Deal with odd sized input.
- */
+#ifndef CONVERT_H
+#define CONVERT_H
 
 #include <stdlib.h>
 

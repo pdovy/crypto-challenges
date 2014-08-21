@@ -1,3 +1,3 @@
-Matasano has long had a set of crypto challenges that you could request via email, and recently they released these publicly at http://www.cryptopals.com.
+These are my personal solutions to the Matasano Crypto Challenges, a series of programming problems related to cryptography.
 
-Given that the new format provides solutions alongwith the problem sets, I figured there was no harm in posting my solutions here as I work through them.
+For the full details, visit http://www.cryptopals.com.

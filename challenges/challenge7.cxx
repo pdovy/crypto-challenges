@@ -5,14 +5,14 @@
 
 #include <iostream>
 #include <fstream>
-#include "base64.h"
-#include "crypto.h"
+#include "convert.h"
+#include "aes.h"
 #include <inttypes.h>
 #include <string.h>
 
 int main()
 {
-  const char * filename = "7.txt";
+  const char * filename = "data/7.txt";
   std::string data;
   std::ifstream input( filename );
   std::string line;

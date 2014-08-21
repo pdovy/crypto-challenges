@@ -1,5 +1,5 @@
-#ifndef CRYPTO_H
-#define CRYPTO_H
+#ifndef AES_H
+#define AES_H
 
 #include <stddef.h>
 #include <string>

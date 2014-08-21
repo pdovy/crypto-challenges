@@ -5,7 +5,8 @@
 
 #include <fstream>
 #include <iostream>
-#include "base64.h"
+#include "convert.h"
+#include "frequency.h"
 #include "xor.h"
 #include <string.h>
 #include <limits>
@@ -56,7 +57,7 @@ struct PairLT
 
 int main()
 {
-  const char * filename = "6.txt";
+  const char * filename = "data/6.txt";
   std::string data;
 
   std::ifstream input( filename );

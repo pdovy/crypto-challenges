@@ -4,7 +4,8 @@
  */
 
 #include "xor.h"
-#include "base64.h"
+#include "convert.h"
+#include "frequency.h"
 #include <string.h>
 #include <iostream>
 
@@ -27,7 +28,7 @@ int main()
   for ( char c = ' ' ; c <= '~' ; ++c ) {
     memset( dst2, c, rawsz );
     fixed_xor( result, dst1, dst2, rawsz );
-    double score = score_string( result, english_freq );
+    double score = score_string( result, rawsz, english_freq );
     if ( score != 0.0 ) {
       ranking.insert( std::make_pair( score, std::string( result ) ) );
     }

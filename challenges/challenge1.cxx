@@ -1,4 +1,9 @@
-#include "base64.h"
+/*
+ * Convert Hex to Base64 - Matasano Crypto Challenge 1.1
+ * See: http://cryptopals.com/sets/1/challenges/1/
+ */
+
+#include "convert.h"
 #include <iostream>
 #include <string.h>
 
@@ -12,16 +17,4 @@ int main()
   std::cout << "Input String => '" << input << "'" << std::endl;
   std::cout << "Output String => '" << output << "'" << std::endl;
   std::cout << "Test Result => " << ( strcmp( expected, output ) == 0 ? "PASS" : "FAIL" ) << std::endl;
-
-  char raw[256] = { 0 };
-  size_t rawbytes = b64_to_raw( raw, output, strlen( output ) );
-
-  //char raw[256] = { 0 };
-  //size_t rawbytes = hex_to_raw( raw, input, strlen( input ) );
-
-  char hex[256] = { 0 };
-  raw_to_hex( hex, raw, rawbytes );
-
-  std::cout << "hex_to_raw => " << rawbytes << " result bytes" << std::endl;
-  std::cout << "raw_to_hex => " << hex << std::endl;
 }

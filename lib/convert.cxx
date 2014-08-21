@@ -1,4 +1,4 @@
-#include "base64.h"
+#include "convert.h"
 #include <inttypes.h>
 #include <byteswap.h>
 
@@ -45,7 +45,8 @@ size_t hex_to_raw( char * dst, const char * src, size_t srclen )
 {
   size_t len = 0;
   while ( *src ) {
-    *dst = ( convert_hex_digit( *src ) << 4 | convert_hex_digit( *(++src) ) );
+    *dst = ( convert_hex_digit( *src ) << 4 | convert_hex_digit( *(src + 1) ) );
+    ++src;
     if ( *src ) ++src;
     ++dst;
     ++len;

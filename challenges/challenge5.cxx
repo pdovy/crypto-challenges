@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string.h>
 #include "xor.h"
-#include "base64.h"
+#include "convert.h"
 
 int main()
 {

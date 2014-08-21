@@ -7,13 +7,13 @@
 #include <iostream>
 #include <string>
 #include "xor.h"
-#include "base64.h"
+#include "convert.h"
 #include <string.h>
 #include <inttypes.h>
 
 int main()
 {
-  const char * filename = "4.txt";
+  const char * filename = "data/4.txt";
   std::ifstream input( filename );
   std::string line;
 

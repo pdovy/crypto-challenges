@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "base64.h"
+#include "convert.h"
 #include <inttypes.h>
 #include <string.h>
 #include <vector>
@@ -47,7 +47,7 @@ double analyze_ciphertext( const std::string & data )
 
 int main()
 {
-  const char * filename = "8.txt";
+  const char * filename = "data/8.txt";
   std::string data;
   std::ifstream input( filename );
   std::string line;

@@ -1,4 +1,4 @@
-#include "crypto.h"
+#include "aes.h"
 #include <openssl/evp.h>
 #include <inttypes.h>
 
@@ -15,7 +15,7 @@ void decrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const char
 
 void pad_pkcs7( std::string & src, size_t blocksz )
 {
-  int8_t padsz = blocksz - ( src.size() % blocksz );
+  uint8_t padsz = blocksz - ( src.size() % blocksz );
   if ( padsz == blocksz ) return;
 
   for ( int8_t idx = 0 ; idx < padsz ; ++idx ) {
