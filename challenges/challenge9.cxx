@@ -1,3 +1,8 @@
+/*
+ * PKCS7 Padding - Matasano Crypto Challenge 2.9
+ * See: http://cryptopals.com/sets/2/challenges/9/
+ */
+
 #include "aes.h"
 #include <iostream>
 #include <string>

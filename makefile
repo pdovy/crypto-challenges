@@ -1,6 +1,6 @@
 CC       = g++
 MKDIR    = mkdir -p
-CFLAGS   = -Wall
+CFLAGS   = -Wall -g
 LIB_SRC  = $(wildcard lib/*.cxx)
 TEST_SRC = $(wildcard challenges/*.cxx)
 LIB_NAME = libcrypto.a
