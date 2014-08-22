@@ -8,7 +8,7 @@ LIB_OBJS = $(patsubst %.cxx,%.o,$(LIB_SRC))
 TESTS    = $(patsubst %.cxx,%,$(TEST_SRC))
 
 %.o : %.cxx
-	$(CC) $(CFLAGS) -I lib/ -c -o $@ $<
+	$(CC) $(CFLAGS) -std=c++11 -I lib/ -c -o $@ $<
 
 lib: $(LIB_OBJS)
 	$(MKDIR) bin
