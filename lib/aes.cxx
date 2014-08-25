@@ -155,8 +155,8 @@ AESMode_t aes_mode_oracle( const char * ciphertext, size_t cipherlen )
   size_t numblocks = cipherlen / blocksize;
   for ( size_t idx = 0 ; idx < numblocks ; ++idx ) {
     raw_to_hex( block, ciphertext + ( idx * blocksize ), blocksize );
-    blocks[std::string(block)] += 1;
+    blocks[std::string(block, blocksize)] += 1;
   }
 
-  return blocks.rbegin()->second > 1 ? AES_MODE_ECB : AES_MODE_CBC;
+  return blocks.size() != numblocks ? AES_MODE_ECB : AES_MODE_CBC;
 }

@@ -21,6 +21,7 @@ tests:
 
 all: lib tests
 clean:
+	$(RM) challenge/*.o
 	$(RM) lib/*.o
 	$(RM) -f bin/*
 

@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <string>
 
+#define AES128_BLOCK_SIZE 16
+
 enum AESMode_t
 {
   AES_MODE_ECB,
