@@ -45,23 +45,6 @@ std::string profile_for(const std::string & email)
     "&uid=10&role=user";
 }
 
-class Attacker
-{
-public:
-
-  static std::string get_email_address()
-  {
-    return "test@test.com";
-  }
-
-  static void update_cipher_text( char * ciphertext, size_t cipherlen )
-  {
-    // AAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCC
-    // email=             &uid=10&role=user
-    // email=                          admin&uid=10&role=user
-  }
-};
-
 int main()
 {
   // sanity test the key-val parser
