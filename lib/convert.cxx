@@ -62,6 +62,7 @@ void raw_to_hex( char * dst, const char * src, size_t srclen )
     unsigned char srcbyte = src[idx];
     dst[0] = alphabet[srcbyte >> 4];
     dst[1] = alphabet[srcbyte & 0xF];
+    dst[2] = '\0';
   }
 }
 
