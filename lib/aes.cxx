@@ -93,7 +93,7 @@ void pad_pkcs7( std::string & src, size_t blocksz )
   }
 }
 
-static std::default_random_engine & get_random_engine()
+std::default_random_engine & get_random_engine()
 {
   static std::default_random_engine gen(
       std::chrono::system_clock::now().time_since_epoch().count());
@@ -159,4 +159,38 @@ AESMode_t aes_mode_oracle( const char * ciphertext, size_t cipherlen )
   }
 
   return blocks.size() != numblocks ? AES_MODE_ECB : AES_MODE_CBC;
+}
+
+void strip_pkcs7_padding( std::string & src, size_t blocksz )
+{
+  // if the source string isn't a multiple of the block size
+  // then the padding is definitely bad
+  if ( src.size() % blocksz != 0 ) {
+    throw std::logic_error( "invalid padded input length" );
+  }
+
+  char pad = src.back();
+
+  // if the last character is printable, then the source
+  // string is unpadded already because it was already a
+  // multiple of the block size
+  if ( ( pad >= ' ' && pad <= '~' ) ||
+       pad == '\n' ||
+       pad == '\r' ||
+       pad == '\t' )
+  {
+    return;
+  }
+  // otherwise, the last pad character should be
+  // in the range [1, blocksize)
+  else if ( pad < 1 || (size_t)pad > blocksize - 1 ) {
+    throw std::logic_error( "invalid padding" );
+  }
+  // finally, check that prior padding characters are correct
+  else if ( src.substr( src.size() - pad, pad ) != std::string( pad, pad ) ) {
+    throw std::logic_error( "invalid padding" );
+  }
+  else {
+    src = src.substr( 0, src.size() - pad );
+  } 
 }

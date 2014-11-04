@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <string>
+#include <random>
 
 #define AES128_BLOCK_SIZE 16
 
@@ -35,5 +36,11 @@ AESMode_t aes_mode_oracle( const char * ciphertext, size_t cipherlen );
 
 /* Pad a string to a given block length using PKCS#7 padding */
 void pad_pkcs7( std::string & src, size_t blocksz );
+
+/* Strip PKCS#7 padding from a given string.  Throws an std::logic_error on invalid padding. */
+void strip_pkcs7_padding( std::string & src, size_t blocksz );
+
+/* Get a pre-initialized random engine */
+std::default_random_engine & get_random_engine();
 
 #endif
