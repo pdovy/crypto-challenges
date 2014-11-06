@@ -96,5 +96,6 @@ int main()
 	    << ( decoded.find(";admin=true;") != std::string::npos ? "YES" : "NO" )
 	    << std::endl;
 
+  free( cipher );
   return 0;
 }
