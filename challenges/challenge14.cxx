@@ -11,12 +11,12 @@
 #include <cassert>
 #include <limits.h>
 
-size_t mysteryfn( char * dst, const char * src, size_t srclen )
+size_t mysteryfn( uint8_t * dst, const uint8_t * src, size_t srclen )
 {
   // initialize our mystery function with a fixed prepend value
   // that will be a random number of random bytes, and a fixed key
-  static char key[AES128_BLOCK_SIZE];
-  static char randbytes[128];
+  static uint8_t key[AES128_BLOCK_SIZE];
+  static uint8_t randbytes[128];
   static size_t randsize = 0;
   static bool init = false;
 
@@ -24,7 +24,7 @@ size_t mysteryfn( char * dst, const char * src, size_t srclen )
     aes128_randkey( key );
     std::default_random_engine & eng = get_random_engine();
     std::uniform_int_distribution<size_t> dist(1, sizeof(randbytes));
-    std::uniform_int_distribution<char> chardist(' ', '~');
+    std::uniform_int_distribution<uint8_t> chardist(' ', '~');
     randsize = dist(eng);
     for ( size_t idx = 0 ; idx < randsize ; ++idx ) {
       randbytes[idx] = dist(eng);
@@ -33,7 +33,7 @@ size_t mysteryfn( char * dst, const char * src, size_t srclen )
   }
 
   const size_t totalsize = randsize + srclen;
-  char prependsrc[totalsize];
+  uint8_t prependsrc[totalsize];
   memset( prependsrc, 0, totalsize );
   memcpy( prependsrc, randbytes, randsize );
   memcpy( prependsrc + randsize, src, srclen );
@@ -61,14 +61,14 @@ int main()
   //  Then we know for <PREPEND SIZE> = N the padding was zero length.
 
   const size_t MaxPrepend = 2048;
-  char * src = (char*)malloc( secretlen + MaxPrepend );
-  char * dst = (char*)malloc( secretlen + MaxPrepend );
-  char * candidate = (char*)malloc( secretlen + MaxPrepend );
+  uint8_t * src = (uint8_t*)malloc( secretlen + MaxPrepend );
+  uint8_t * dst = (uint8_t*)malloc( secretlen + MaxPrepend );
+  uint8_t * candidate = (uint8_t*)malloc( secretlen + MaxPrepend );
 
   size_t prependsz = AES128_BLOCK_SIZE * 2;
   memset( src, 'A', prependsz );
   memcpy( src + prependsz, secret, secretlen );
-  size_t startsz = mysteryfn( dst, secret, secretlen + prependsz );
+  size_t startsz = mysteryfn( dst, (uint8_t*)secret, secretlen + prependsz );
 
   size_t newsz = startsz;
   for ( ; prependsz > 0 && startsz == newsz ; --prependsz )
@@ -82,8 +82,8 @@ int main()
   std::cout << "Determined Random Prepend Size => " << randsz << std::endl;
 
   // Step 3: Craft prepend data to discover each byte of the secret message
-  std::set<char> chars;
-  for ( char c = ' ' ; c <= '~' ; ++c ) {
+  std::set<uint8_t> chars;
+  for ( uint8_t c = ' ' ; c <= '~' ; ++c ) {
     chars.insert( c );
   }
   chars.insert( '\n' );
@@ -105,7 +105,7 @@ int main()
       const std::string prepend = std::string( randpadsz, 'B' ) +
 	std::string( AES128_BLOCK_SIZE - segment.size() - 1, 'A' );
       const std::string test = prepend + secretstr;
-      mysteryfn( dst, test.c_str(), test.size() );
+      mysteryfn( dst, (uint8_t*)test.c_str(), test.size() );
 
       // For each possible character, generate a candidate block
       // consisting of all 'A' characters, plus the decoded block
@@ -114,13 +114,13 @@ int main()
       // to pad out the random prefix data to a whole block.
       // If the encrypted block matches the encrypted secret string block,
       // then we have the correct character.
-      for ( std::set<char>::const_iterator it = chars.begin() ;
+      for ( std::set<uint8_t>::const_iterator it = chars.begin() ;
 	    it != chars.end() ; ++it )
       {
 	const char c = *it;
 	std::string candidateInput = prepend + segment + c;
 
-	mysteryfn( candidate, candidateInput.c_str(), candidateInput.size() );
+	mysteryfn( candidate, (uint8_t*)candidateInput.c_str(), candidateInput.size() );
 	if ( memcmp( candidate + prependsz, dst + prependsz, AES128_BLOCK_SIZE ) == 0 ) {
 	  segment.push_back( c );
 	  break;

@@ -18,11 +18,11 @@ int main()
 
   AESMode_t mode;
   const size_t trials = 5000;
-  char * ciphertext = (char*)malloc( data.size() * 2 );
+  uint8_t * ciphertext = (uint8_t*)malloc( data.size() * 2 );
 
   size_t passcount = 0;
   for ( size_t idx = 0 ; idx < trials ; ++idx ) {
-    const size_t cipherlen = encrypt_aes128_oracle( ciphertext, data.c_str(), data.size(), mode );
+    const size_t cipherlen = encrypt_aes128_oracle( ciphertext, (uint8_t*)data.c_str(), data.size(), mode );
     const AESMode_t guessedmode = aes_mode_oracle( ciphertext, cipherlen );
     const bool pass = ( guessedmode == mode );
 

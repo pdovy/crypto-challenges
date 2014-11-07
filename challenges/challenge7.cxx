@@ -30,14 +30,15 @@ int main()
   memset( raw, 0, data.size() );
   size_t rawbytes = b64_to_raw( raw, data.c_str(), data.size() );
 
-  const char * key = "YELLOW SUBMARINE";
-  char * output = (char*)malloc( rawbytes + 1 );
+  uint8_t key[AES128_BLOCK_SIZE];
+  memcpy( key, "YELLOW SUBMARINE", AES128_BLOCK_SIZE );
+  uint8_t * output = (uint8_t*)malloc( rawbytes + 1 );
   memset( output, 0, rawbytes );
-  decrypt_aes128_ecb( output, raw, rawbytes, key );
+  decrypt_aes128_ecb( output, (uint8_t*)raw, rawbytes, key );
 
   std::cout << "Decrypted with Key = '" << key << "'" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
-  std::cout << std::string( output, rawbytes ) << std::endl;
+  std::cout << std::string( (char*)output, rawbytes ) << std::endl;
 
   free( raw );
   free( output );

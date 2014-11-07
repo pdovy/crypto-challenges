@@ -10,7 +10,7 @@
 const std::string prefix( "comment1=cooking%20MCs;userdata=" );
 const std::string postfix( ";comment2=%20like%20a%20pound%20of%20bacon" );
 
-char * encrypt_userdata( const char * key, const char * iv, const std::string & userdata, size_t & cipherlen )
+uint8_t * encrypt_userdata( const uint8_t * key, const uint8_t * iv, const std::string & userdata, size_t & cipherlen )
 {
   // escape any ';' or '=' characters in the input
   std::string escaped = userdata;
@@ -30,16 +30,16 @@ char * encrypt_userdata( const char * key, const char * iv, const std::string & 
   escaped = prefix + escaped + postfix;
 
   // encrypt under the provided key and initialization vector
-  char * cipher = (char*)malloc( escaped.size() + AES128_BLOCK_SIZE );
-  cipherlen = encrypt_aes128_cbc( cipher, escaped.c_str(), escaped.size(), key, iv );
+  uint8_t * cipher = (uint8_t*)malloc( escaped.size() + AES128_BLOCK_SIZE );
+  cipherlen = encrypt_aes128_cbc( cipher, (uint8_t*)escaped.c_str(), escaped.size(), key, iv );
   return cipher;
 }
 
-std::string decrypt_all( const char * key, const char * iv, const char * cipher, size_t cipherlen )
+std::string decrypt_all( const uint8_t * key, const uint8_t * iv, const uint8_t * cipher, size_t cipherlen )
 {
-  char * decoded = (char*)malloc( cipherlen );
+  uint8_t * decoded = (uint8_t*)malloc( cipherlen );
   decrypt_aes128_cbc( decoded, cipher, cipherlen, key, iv );
-  std::string rv( decoded, cipherlen );
+  std::string rv( (char*)decoded, cipherlen );
   free( decoded );
   return rv;
 }
@@ -47,11 +47,11 @@ std::string decrypt_all( const char * key, const char * iv, const char * cipher,
 int main()
 {
   // generate a random key
-  char key[AES128_BLOCK_SIZE];
+  uint8_t key[AES128_BLOCK_SIZE];
   aes128_randkey( key );
 
   // generate a random initialization vector
-  char iv[AES128_BLOCK_SIZE];
+  uint8_t iv[AES128_BLOCK_SIZE];
   std::default_random_engine rand = get_random_engine();
   std::uniform_int_distribution<char> chardist(0, 255);
   for ( size_t idx = 0 ; idx < sizeof( iv ) ; ++idx ) {
@@ -81,7 +81,7 @@ int main()
   std::cout << "userdata = \"" << userdata << "\"" << std::endl;
 
   size_t cipherlen = 0;
-  char * cipher = encrypt_userdata( key, iv, userdata, cipherlen );
+  uint8_t * cipher = encrypt_userdata( key, iv, userdata, cipherlen );
 
   /* Flip the appropriate bits in the block prior to our userdata cipher block
      this requires of course, that we know that the prefix data appended to our input

@@ -15,10 +15,10 @@ enum AESMode_t
 };
 
 /* Decrypt an AES-ECB encoded buffer with a 128-bit (16 byte) key. */
-void decrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const char * key );
+void decrypt_aes128_ecb( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key );
 
 /* Encrypt a plain-text buffer with AES-ECB with a 128 bit key */
-size_t encrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const char * key );
+size_t encrypt_aes128_ecb( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key );
 
 /* Encrypt a plain-text buffer with AES-CBC with a 128 bit key */
 size_t encrypt_aes128_cbc( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, const uint8_t * iv );
@@ -30,10 +30,10 @@ void decrypt_aes128_cbc( uint8_t * dst, const uint8_t * src, size_t srclen, cons
 void aes128_randkey( uint8_t * dst );
 
 /* Encrypt with AES the given data under a random key, with a 50/50 chance of using either ECB or CBC mode */
-size_t encrypt_aes128_oracle( char * dst, const char * src, size_t srclen, AESMode_t & mode );
+size_t encrypt_aes128_oracle( uint8_t * dst, const uint8_t * src, size_t srclen, AESMode_t & mode );
 
 /* Determine whether a given ciphertext was encrypted under AES in ECB or CBC mode */
-AESMode_t aes_mode_oracle( const char * ciphertext, size_t cipherlen );
+AESMode_t aes_mode_oracle( const uint8_t * ciphertext, size_t cipherlen );
 
 /* Pad a string to a given block length using PKCS#7 padding */
 void pad_pkcs7( std::string & src, size_t blocksz );

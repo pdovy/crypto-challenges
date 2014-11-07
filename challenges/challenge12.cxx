@@ -9,9 +9,9 @@
 #include <iostream>
 #include <set>
 
-size_t mysteryfn( char * dst, const char * src, size_t srclen )
+size_t mysteryfn( uint8_t * dst, const uint8_t * src, size_t srclen )
 {
-  static char key[AES128_BLOCK_SIZE];
+  static uint8_t key[AES128_BLOCK_SIZE];
   static bool init = false;
 
   if ( ! init ) {
@@ -27,9 +27,9 @@ int main()
   // decode the base64 encoded secret string to a buffer
   const char * secretb64 = "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK";
   char * secret = (char*)malloc( strlen( secretb64 ) * 2 );
-  size_t secretlen = b64_to_raw( secret , secretb64, strlen( secretb64 ) );
-  char * src = (char*)malloc( strlen( secretb64 ) * 2 );
-  char * cipher = (char*)malloc( strlen( secretb64 ) * 2 );
+  size_t secretlen = b64_to_raw( secret, secretb64, strlen( secretb64 ) );
+  uint8_t * src = (uint8_t*)malloc( strlen( secretb64 ) * 2 );
+  uint8_t * cipher = (uint8_t*)malloc( strlen( secretb64 ) * 2 );
 
   // Step 1: Discover the Key Length
   // Prepend strings of increasing size to the secret string
@@ -58,8 +58,8 @@ int main()
 
   // Step 3: Craft prepend data to discover each byte of the secret message
 
-  std::set<char> chars;
-  for ( char c = ' ' ; c <= '~' ; ++c ) {
+  std::set<uint8_t> chars;
+  for ( uint8_t c = ' ' ; c <= '~' ; ++c ) {
     chars.insert( c );
   }
   chars.insert( '\n' );
@@ -74,7 +74,7 @@ int main()
       std::string prepend =
 	std::string(blocksize - segment.size() - 1, 'A');
       std::string test = prepend + secretstr;
-      mysteryfn( cipher, test.c_str(), blocksize );
+      mysteryfn( cipher, (uint8_t*)test.c_str(), blocksize );
 
       // for each possible character, generate a candidate block
       // consisting of all 'A' characters, plus the decoded block
@@ -82,13 +82,13 @@ int main()
       // if the encrypted block matches the encrypted secret string block,
       // then we have the correct character
 
-      for ( std::set<char>::const_iterator it = chars.begin() ;
+      for ( std::set<uint8_t>::const_iterator it = chars.begin() ;
 	    it != chars.end() ; ++it )
 	{
 	  const char c = *it;
 	  std::string candidate = prepend + segment + c;
-	  char candidateblock[blocksize];
-	  mysteryfn( candidateblock, candidate.c_str(), blocksize );
+	  uint8_t candidateblock[blocksize * 2];
+	  mysteryfn( candidateblock, (uint8_t*)candidate.c_str(), blocksize );
 	  if ( memcmp( candidateblock, cipher, blocksize ) == 0 ) {
 	    segment.push_back( c );
 	    break;

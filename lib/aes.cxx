@@ -10,29 +10,29 @@
 
 static const size_t blocksize = 16;
 
-void decrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const char * key )
+void decrypt_aes128_ecb( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key )
 {
   AES_KEY aeskey;
-  AES_set_decrypt_key( (uint8_t*)key, 128, &aeskey );
+  AES_set_decrypt_key( key, 128, &aeskey );
 
   for ( ; srclen >= blocksize ; srclen -= blocksize, src += blocksize, dst += blocksize ) {
-    AES_decrypt( (uint8_t*)src, (uint8_t*)dst, &aeskey );
+    AES_decrypt( src, dst, &aeskey );
   }
 }
 
-size_t encrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const char * key )
+size_t encrypt_aes128_ecb( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key )
 {
   AES_KEY aeskey;
-  AES_set_encrypt_key( (uint8_t*)key, 128, &aeskey );
+  AES_set_encrypt_key( key, 128, &aeskey );
 
-  std::string padded( src, srclen );
+  std::string padded( (char*)src, srclen );
   pad_pkcs7( padded, 16 );
-  src = padded.c_str();
+  src = (uint8_t*)padded.c_str();
   srclen = padded.length();
 
   size_t totallen = 0;
   for ( ; srclen >= blocksize ; srclen -= blocksize, src += blocksize, dst += blocksize, totallen += blocksize ) {
-    AES_ecb_encrypt( (uint8_t*)src, (uint8_t*)dst, &aeskey, AES_ENCRYPT );
+    AES_ecb_encrypt( src, dst, &aeskey, AES_ENCRYPT );
   }
 
   return totallen;
@@ -107,20 +107,20 @@ void aes128_randkey( uint8_t * dst )
   }
 }
 
-size_t encrypt_aes128_oracle( char * dst, const char * src, size_t srclen, AESMode_t & mode )
+size_t encrypt_aes128_oracle( uint8_t * dst, const uint8_t * src, size_t srclen, AESMode_t & mode )
 {
-  char key[blocksize];
+  uint8_t key[blocksize];
   aes128_randkey( (uint8_t*)key );
 
   std::default_random_engine & gen = get_random_engine();
-  std::uniform_int_distribution<char> dist(0, 1);
-  std::uniform_int_distribution<char> extradist(5, 10);
-  std::uniform_int_distribution<char> bytedist(0, 127);
+  std::uniform_int_distribution<uint8_t> dist(0, 1);
+  std::uniform_int_distribution<uint8_t> extradist(5, 10);
+  std::uniform_int_distribution<uint8_t> bytedist(0, 127);
 
   const size_t prefixsz = extradist(gen);
   const size_t suffixsz = extradist(gen);
 
-  char * newsrc = (char*)malloc( srclen + prefixsz + suffixsz );
+  uint8_t * newsrc = (uint8_t*)malloc( srclen + prefixsz + suffixsz );
   for ( size_t idx = 0 ; idx < prefixsz ; ++idx ) {
     newsrc[idx] = bytedist(gen);
   }
@@ -136,7 +136,7 @@ size_t encrypt_aes128_oracle( char * dst, const char * src, size_t srclen, AESMo
   }
   else {
     mode = AES_MODE_CBC;
-    char iv[blocksize];
+    uint8_t iv[blocksize];
     aes128_randkey( (uint8_t*)iv );
     ciphersz = encrypt_aes128_cbc( (uint8_t*)dst, (uint8_t*)src, srclen, (uint8_t*)key, (uint8_t*)iv );
   }
@@ -145,15 +145,15 @@ size_t encrypt_aes128_oracle( char * dst, const char * src, size_t srclen, AESMo
   return ciphersz;
 }
 
-AESMode_t aes_mode_oracle( const char * ciphertext, size_t cipherlen )
+AESMode_t aes_mode_oracle( const uint8_t * ciphertext, size_t cipherlen )
 {
   std::map<std::string, size_t> blocks;
-  char block[blocksize * 2];
+  uint8_t block[blocksize * 2];
 
   size_t numblocks = cipherlen / blocksize;
   for ( size_t idx = 0 ; idx < numblocks ; ++idx ) {
-    raw_to_hex( block, ciphertext + ( idx * blocksize ), blocksize );
-    blocks[std::string(block, blocksize)] += 1;
+    raw_to_hex( (char*)block, (char*)ciphertext + ( idx * blocksize ), blocksize );
+    blocks[std::string( (char*)block, blocksize )] += 1;
   }
 
   return blocks.size() != numblocks ? AES_MODE_ECB : AES_MODE_CBC;
@@ -167,9 +167,9 @@ void strip_pkcs7_padding( std::string & src, size_t blocksz )
     throw std::logic_error( "invalid padded input length" );
   }
 
-  char pad = src.back();
+  uint8_t pad = src.back();
 
-  // the last pad character should be
+  // the last pad uint8_tacter should be
   // in the range [1, blocksize]
   if ( pad < 1 || (size_t)pad > blocksize ) {
     throw std::logic_error( "invalid padding" );

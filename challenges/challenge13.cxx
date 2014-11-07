@@ -63,7 +63,7 @@ int main()
 	  "email=test@somewhere.com&uid=10&role=user" );
 
   // generate a random key
-  char key[AES128_BLOCK_SIZE];
+  uint8_t key[AES128_BLOCK_SIZE];
   aes128_randkey( key );
 
   // The main exploit we can use against ECB is that the blocks are
@@ -88,13 +88,13 @@ int main()
   std::string kvtext1 = profile_for( "AAAAAAAAAAAAA" );
   std::string kvtext2 = profile_for( "AAAAAAAAAAAAAAAAAAAAAAAAAAadmin" );
 
-  char * ciphertext1 = (char*)malloc( AES128_BLOCK_SIZE * 4 );
-  char * ciphertext2 = (char*)malloc( AES128_BLOCK_SIZE * 4 );
-  char * decoded = (char*)malloc( AES128_BLOCK_SIZE * 4 );
+  uint8_t * ciphertext1 = (uint8_t*)malloc( AES128_BLOCK_SIZE * 4 );
+  uint8_t * ciphertext2 = (uint8_t*)malloc( AES128_BLOCK_SIZE * 4 );
+  uint8_t * decoded = (uint8_t*)malloc( AES128_BLOCK_SIZE * 4 );
   memset( decoded, 0, AES128_BLOCK_SIZE * 4 );
 
-  encrypt_aes128_ecb( ciphertext1, kvtext1.c_str(), kvtext1.size(), key );
-  encrypt_aes128_ecb( ciphertext2, kvtext2.c_str(), kvtext2.size(), key );
+  encrypt_aes128_ecb( ciphertext1, (uint8_t*)kvtext1.c_str(), kvtext1.size(), key );
+  encrypt_aes128_ecb( ciphertext2, (uint8_t*)kvtext2.c_str(), kvtext2.size(), key );
   memcpy( ciphertext1 + AES128_BLOCK_SIZE * 2,
 	  ciphertext2 + AES128_BLOCK_SIZE * 2,
 	  AES128_BLOCK_SIZE );
@@ -102,7 +102,7 @@ int main()
   decrypt_aes128_ecb( decoded, ciphertext1, AES128_BLOCK_SIZE * 3, key );
 
   std::map<std::string, std::string> results;
-  parse_kv( results, std::string( decoded, AES128_BLOCK_SIZE * 3 ) );
+  parse_kv( results, std::string( (char*)decoded, AES128_BLOCK_SIZE * 3 ) );
 
   std::cout << "Decoded Role => " << results["role"] << std::endl;
 
