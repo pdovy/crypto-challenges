@@ -25,8 +25,8 @@ size_t encrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const ch
   AES_KEY aeskey;
   AES_set_encrypt_key( (uint8_t*)key, 128, &aeskey );
 
-  std::string padded(src, srclen);
-  pad_pkcs7(padded, 16);
+  std::string padded( src, srclen );
+  pad_pkcs7( padded, 16 );
   src = padded.c_str();
   srclen = padded.length();
 
@@ -38,18 +38,18 @@ size_t encrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const ch
   return totallen;
 }
 
-size_t encrypt_aes128_cbc( char * dst, const char * src, size_t srclen, const char * key, const char * iv )
+size_t encrypt_aes128_cbc( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, const uint8_t * iv )
 {
   AES_KEY aeskey;
-  AES_set_encrypt_key( (uint8_t*)key, 128, &aeskey );
+  AES_set_encrypt_key( key, 128, &aeskey );
 
-  std::string padded(src, srclen);
-  pad_pkcs7(padded, 16);
-  src = padded.c_str();
+  std::string padded( (char*)src, srclen );
+  pad_pkcs7( padded, AES128_BLOCK_SIZE );
+  src = (uint8_t*)padded.c_str();
   srclen = padded.length();
 
-  char block[blocksize];
-  char prevblock[blocksize];
+  uint8_t block[blocksize];
+  uint8_t prevblock[blocksize];
   memcpy( prevblock, iv, blocksize );
 
   size_t totallen = 0;
@@ -58,26 +58,26 @@ size_t encrypt_aes128_cbc( char * dst, const char * src, size_t srclen, const ch
 	  dst += blocksize, totallen += blocksize )
   {
     fixed_xor( block, src, prevblock, blocksize );
-    AES_ecb_encrypt( (uint8_t*)block, (uint8_t*)dst, &aeskey, AES_ENCRYPT );
+    AES_ecb_encrypt( block, dst, &aeskey, AES_ENCRYPT );
     memcpy( prevblock, dst, blocksize );
   }
 
   return totallen;
 }
 
-void decrypt_aes128_cbc( char * dst, const char * src, size_t srclen, const char * key, const char * iv )
+void decrypt_aes128_cbc( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, const uint8_t * iv )
 {
   AES_KEY aeskey;
-  AES_set_decrypt_key( (uint8_t*)key, 128, &aeskey );
+  AES_set_decrypt_key( key, 128, &aeskey );
 
-  char block[blocksize];
-  char prevblock[blocksize];
+  uint8_t block[blocksize];
+  uint8_t prevblock[blocksize];
   memcpy( prevblock, iv, blocksize );
 
   for ( ; srclen >= blocksize ;
 	srclen -= blocksize, src += blocksize, dst += blocksize )
   {
-    AES_decrypt( (uint8_t*)src, (uint8_t*)block, &aeskey );
+    AES_decrypt( src, block, &aeskey );
     fixed_xor( dst, block, prevblock, blocksize );
     memcpy( prevblock, src, blocksize );
   }
@@ -85,10 +85,8 @@ void decrypt_aes128_cbc( char * dst, const char * src, size_t srclen, const char
 
 void pad_pkcs7( std::string & src, size_t blocksz )
 {
-  uint8_t padsz = blocksz - ( src.size() % blocksz );
-  if ( padsz == blocksz ) return;
-
-  for ( int8_t idx = 0 ; idx < padsz ; ++idx ) {
+  const uint8_t padsz = blocksz - ( src.size() % blocksz );
+  for ( uint8_t idx = 0 ; idx < padsz ; ++idx ) {
     src.push_back( padsz );
   }
 }
@@ -100,19 +98,19 @@ std::default_random_engine & get_random_engine()
   return gen;
 }
 
-void aes128_randkey( char * dst )
+void aes128_randkey( uint8_t * dst )
 {
   std::default_random_engine gen = get_random_engine();
-  std::uniform_int_distribution<char> dist(0, 127);
+  std::uniform_int_distribution<uint8_t> dist( 0, 255 );
   for ( size_t idx = 0 ; idx < blocksize ; ++idx ) {
-    dst[idx] = dist(gen);
+    dst[idx] = dist( gen );
   }
 }
 
 size_t encrypt_aes128_oracle( char * dst, const char * src, size_t srclen, AESMode_t & mode )
 {
   char key[blocksize];
-  aes128_randkey( key );
+  aes128_randkey( (uint8_t*)key );
 
   std::default_random_engine & gen = get_random_engine();
   std::uniform_int_distribution<char> dist(0, 1);
@@ -139,8 +137,8 @@ size_t encrypt_aes128_oracle( char * dst, const char * src, size_t srclen, AESMo
   else {
     mode = AES_MODE_CBC;
     char iv[blocksize];
-    aes128_randkey( iv );
-    ciphersz = encrypt_aes128_cbc( dst, src, srclen, key, iv );
+    aes128_randkey( (uint8_t*)iv );
+    ciphersz = encrypt_aes128_cbc( (uint8_t*)dst, (uint8_t*)src, srclen, (uint8_t*)key, (uint8_t*)iv );
   }
 
   free( newsrc );
@@ -171,19 +169,9 @@ void strip_pkcs7_padding( std::string & src, size_t blocksz )
 
   char pad = src.back();
 
-  // if the last character is printable, then the source
-  // string is unpadded already because it was already a
-  // multiple of the block size
-  if ( ( pad >= ' ' && pad <= '~' ) ||
-       pad == '\n' ||
-       pad == '\r' ||
-       pad == '\t' )
-  {
-    return;
-  }
-  // otherwise, the last pad character should be
-  // in the range [1, blocksize)
-  else if ( pad < 1 || (size_t)pad > blocksize - 1 ) {
+  // the last pad character should be
+  // in the range [1, blocksize]
+  if ( pad < 1 || (size_t)pad > blocksize ) {
     throw std::logic_error( "invalid padding" );
   }
   // finally, check that prior padding characters are correct

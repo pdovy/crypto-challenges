@@ -5,18 +5,18 @@
 #include <inttypes.h>
 #include <cassert>
 
-void fixed_xor(char * dst, const char * src1, const char * src2, size_t len)
+void fixed_xor(uint8_t * dst, const uint8_t * src1, const uint8_t * src2, size_t len)
 {
   for (size_t idx = 0 ; idx < len ; ++idx) {
     dst[idx] = src1[idx] ^ src2[idx];
   }
 }
 
-void apply_repkey_xor(char * dst, const char * src, size_t srclen, const char * key, size_t keylen)
+void apply_repkey_xor(uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, size_t keylen)
 {
   size_t keyIndex = 0;
   for ( size_t idx = 0 ; idx < srclen ; ++idx ) {
-    const char currentKeyChar = key[keyIndex];
+    const uint8_t currentKeyChar = key[keyIndex];
     dst[idx] = src[idx] ^ currentKeyChar;
     keyIndex = ( keyIndex + 1 ) % keylen;
   }
@@ -40,7 +40,7 @@ void solve_xor_cipher( RankedCiphers & rankings, const char * data, size_t rawsz
     memset( result, 0, rawsz );
     std::string keystr( rawsz, c );
     assert( rawsz == keystr.size() );
-    fixed_xor( result, data, keystr.c_str(), rawsz );
+    fixed_xor( (uint8_t*)result, (uint8_t*)data, (uint8_t*)keystr.c_str(), rawsz );
 
     // score the string, zero indicates a non-viable result
     double score = score_string( result, rawsz, english_freq );

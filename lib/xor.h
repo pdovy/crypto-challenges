@@ -8,11 +8,11 @@
 /* Store the result of src1 ^ src2 into buffer dst.
    All argument buffers should have the same length.
 */
-void fixed_xor( char * dst, const char * src1, const char * src2, size_t len );
+void fixed_xor( uint8_t * dst, const uint8_t * src1, const uint8_t * src2, size_t len );
 
 /* Encrypt or decrypt a given source buffer via repeating-key XOR with a specified key.
 */
-void apply_repkey_xor( char * dst, const char * src, size_t srclen, const char * key, size_t keylen );
+void apply_repkey_xor( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, size_t keylen );
 
 /* Compute the edit/hamming distance between two strings. */
 size_t edit_distance( const char * str1, const char * str2, size_t len );

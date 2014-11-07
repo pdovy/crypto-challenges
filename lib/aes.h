@@ -1,6 +1,7 @@
 #ifndef AES_H
 #define AES_H
 
+#include <inttypes.h>
 #include <stddef.h>
 #include <string>
 #include <random>
@@ -20,13 +21,13 @@ void decrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const char
 size_t encrypt_aes128_ecb( char * dst, const char * src, size_t srclen, const char * key );
 
 /* Encrypt a plain-text buffer with AES-CBC with a 128 bit key */
-size_t encrypt_aes128_cbc( char * dst, const char * src, size_t srclen, const char * key, const char * iv );
+size_t encrypt_aes128_cbc( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, const uint8_t * iv );
 
 /* Decrypt an AES-CBC encoded buffer with an 128-bit key and a given initialization vector. */
-void decrypt_aes128_cbc( char * dst, const char * src, size_t srclen, const char * key, const char * iv );
+void decrypt_aes128_cbc( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, const uint8_t * iv );
 
 /* Generate a random 128-bit AES key */
-void aes128_randkey( char * dst );
+void aes128_randkey( uint8_t * dst );
 
 /* Encrypt with AES the given data under a random key, with a 50/50 chance of using either ECB or CBC mode */
 size_t encrypt_aes128_oracle( char * dst, const char * src, size_t srclen, AESMode_t & mode );
