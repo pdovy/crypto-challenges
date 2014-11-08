@@ -83,6 +83,25 @@ void decrypt_aes128_cbc( uint8_t * dst, const uint8_t * src, size_t srclen, cons
   }
 }
 
+void apply_aes128_ctr( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, const uint8_t * nonce )
+{
+  uint8_t cipher[AES128_BLOCK_SIZE * 2];
+  uint8_t keystream[AES128_BLOCK_SIZE];
+  uint64_t * counter = (uint64_t*)&keystream[8];
+  memcpy( keystream, nonce, 8 );
+
+  *counter = 0;
+
+  while ( srclen ) { 
+    encrypt_aes128_ecb( cipher, keystream, sizeof( keystream ), key );
+    fixed_xor( dst, src, cipher, std::min( srclen, (size_t)AES128_BLOCK_SIZE ) );
+    dst += AES128_BLOCK_SIZE;
+    src += AES128_BLOCK_SIZE;
+    ++(*counter);
+    srclen = srclen < AES128_BLOCK_SIZE ? 0 : ( srclen - AES128_BLOCK_SIZE );
+  }
+}
+
 void pad_pkcs7( std::string & src, size_t blocksz )
 {
   const uint8_t padsz = blocksz - ( src.size() % blocksz );

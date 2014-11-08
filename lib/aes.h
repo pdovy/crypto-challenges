@@ -26,6 +26,9 @@ size_t encrypt_aes128_cbc( uint8_t * dst, const uint8_t * src, size_t srclen, co
 /* Decrypt an AES-CBC encoded buffer with an 128-bit key and a given initialization vector. */
 void decrypt_aes128_cbc( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, const uint8_t * iv );
 
+/* Apply AES CTR with the provided key and nonce */
+void apply_aes128_ctr( uint8_t * dst, const uint8_t * src, size_t srclen, const uint8_t * key, const uint8_t * nonce );
+
 /* Generate a random 128-bit AES key */
 void aes128_randkey( uint8_t * dst );
 
