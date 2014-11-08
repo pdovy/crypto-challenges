@@ -76,9 +76,10 @@ int main()
     memset( src, 'A', prependsz );
     memcpy( src + prependsz, secret, secretlen );
     newsz = mysteryfn( dst, src, secretlen + prependsz );
+    std::cout << "prependsz = " << prependsz << ", startsz = " << startsz << ", newsize = " << newsz << ", secretlen = " << secretlen << std::endl;
   }
 
-  size_t randsz = newsz - ( secretlen + prependsz + 1 );
+  size_t randsz = newsz - ( secretlen + prependsz + 2 );
   std::cout << "Determined Random Prepend Size => " << randsz << std::endl;
 
   // Step 3: Craft prepend data to discover each byte of the secret message

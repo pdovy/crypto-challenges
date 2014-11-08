@@ -29,9 +29,9 @@ void solve_xor_cipher( RankedCiphers & rankings, const char * data, size_t rawsz
   CharFrequency english_freq = getEnglishFrequencies();
   char * result = (char*)malloc( rawsz );
 
-  for ( char c = 1 ; c <= 127 ; ++c ) {
+  for ( int c = 1 ; c <= 127 ; ++c ) {
     memset( result, 0, rawsz );
-    std::string keystr( rawsz, c );
+    std::string keystr( rawsz, (char)c );
     assert( rawsz == keystr.size() );
     fixed_xor( result, data, keystr.c_str(), rawsz );
 
